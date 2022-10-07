@@ -2,6 +2,8 @@
 
 _Authors: Nicola Elia, Alessandro Parenti, Domenico Tortola_
 
+This version is currently a _draft_. Authrors are still waiting for approval.
+
 ## Project goal
 
 The project goal consists in implementing a **decentralized bet system**, in which several participants may bet on the result of a particular event. The smart contract would collect the bids and - at the end of the event - the Algorand network will autonomously distribute the payouts between the winning participants.
