@@ -2,7 +2,7 @@
 
 _Authors: Nicola Elia, Alessandro Parenti, Domenico Tortola_
 
-This version is currently a _draft_. Authrors are still waiting for approval.
+This version is currently a _draft_. Authors are still waiting for approval.
 
 ## Project goal
 
