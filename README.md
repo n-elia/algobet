@@ -2,7 +2,7 @@
 
 _Authors: Nicola Elia, Alessandro Parenti, Domenico Tortola_
 
-This project work proposal was developed by team #5 during the International School on Algorand Smart Contracts([link](https://algorand-school.github.io/algorand-school/)).
+This project work proposal was developed by team #5 during the International School on Algorand Smart Contracts ([link](https://algorand-school.github.io/algorand-school/)).
 
 Current state: the proposal has been approved by the School's organising committee.
 
