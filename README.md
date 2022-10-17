@@ -8,6 +8,28 @@ on September 27 - October 18, 2022.
 
 Current state: the proposal has been approved by the School's organising committee. The project has been developed.
 
+## Table of contents
+
+* [Project’s Goals](#project-s-goals)
+  + [Description](#description)
+* [State-of-the-art and arisen technical challenges](#state-of-the-art-and-arisen-technical-challenges)
+  + [Similar use-cases implementations](#similar-use-cases-implementations)
+  + [Smart contract development framework](#smart-contract-development-framework)
+  + [Interfacing with real-world data: oracles](#interfacing-with-real-world-data--oracles)
+  + [Smart contract testing: issues and workarounds](#smart-contract-testing--issues-and-workarounds)
+    - [Features testing requirements](#features-testing-requirements)
+    - [State-of-the-art testing environment issues](#state-of-the-art-testing-environment-issues)
+    - [Implications on tests and proposed workarounds](#implications-on-tests-and-proposed-workarounds)
+* [Smart Contract Specifications](#smart-contract-specifications)
+  + [Global and Local state variables](#global-and-local-state-variables)
+  + [Methods](#methods)
+* [How to deploy and run](#how-to-deploy-and-run)
+  + [Environment setup](#environment-setup)
+  + [Run a Demo](#run-a-demo)
+  + [Run tests](#run-tests)
+  + [Compile to TEAL](#compile-to-teal)
+* [Future works and improvements](#future-works-and-improvements)
+
 ## Project’s Goals
 
 AlgoBet project addresses the definition of a basic decentralized bet system, and its implementation by means of an
