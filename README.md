@@ -354,3 +354,13 @@ make test
 ```
 
 The report will be located at `test_reports/pytest_report.html`.
+
+### Compile to TEAL
+
+Beaker framework can also be used for exporting TEAL code of the developed application.
+The script `src/teal/compile.py` can be run to generate the Aprroval Program, Clear Program and transactions json:
+
+```shell
+cd src/teal/
+python compile.py
+```
