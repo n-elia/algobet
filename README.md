@@ -343,7 +343,8 @@ To run tests, the sandbox in `dev`mode must be up and running.
 Therefore, we provided the test suite with the possibility to set up and teardown the sandbox network during each test
 session.
 
-Depending on your configuration, set up the `src/test/sandbox/sandbox_setup.sh` and `src/test/sandbox/sandbox_teardown.sh` shell scripts.
+Depending on your configuration, set up the `src/test/sandbox/sandbox_setup.sh`
+and `src/test/sandbox/sandbox_teardown.sh` shell scripts.
 Then, you can enable automatic execution of those scripts at each run by using the `--sandbox` parameter on the `pytest`
 CLI.
 
@@ -364,3 +365,14 @@ The script `src/teal/compile.py` can be run to generate the Aprroval Program, Cl
 cd src/teal/
 python compile.py
 ```
+
+## Future works and improvements
+
+- Implement an always-on parent contract, which can be used to spawn AlgoBet child contracts.
+
+- Implement custom bet stake for each participant, thus adapting the payout system to more complex situations.
+
+- Attach a state-of-the-art oracle smart contract, implementing a strategy for uniquely identifying the events.
+
+- Develop a mechanism to make the contract account hold enough Algos to pay transaction fees in variable transaction
+  fees scenarios.
