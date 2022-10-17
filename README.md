@@ -1,67 +1,357 @@
-# Group 5 - Project proposal: “AlgoBet”
+# AlgoBet - A decentralized bet system powered by Algorand
 
-_Authors: Nicola Elia, Alessandro Parenti, Domenico Tortola_
+_Authors: Group 5 - Nicola Elia, Alessandro Parenti, Domenico Tortola_
 
-This project work proposal was developed by team #5 during the International School on Algorand Smart Contracts ([link](https://algorand-school.github.io/algorand-school/)).
+This repository contains the deliverables related to the project work developed by Group #5 during
+the [International School on Algorand Smart Contracts](https://algorand-school.github.io/algorand-school/) held online
+on September 27 - October 18, 2022.
 
-Current state: the proposal has been approved by the School's organising committee.
+Current state: the proposal has been approved by the School's organising committee. The project has been developed.
 
-## Project goal
+## Project’s Goals
 
-The project goal consists in implementing a **decentralized bet system**, in which several participants may bet on the result of a particular event. The smart contract would collect the bids and - at the end of the event - the Algorand network will autonomously distribute the payouts between the winning participants.
+AlgoBet project addresses the definition of a basic decentralized bet system, and its implementation by means of an
+Algorand smart contract.
 
-The project will be developed in a **step-by-step** fashion, in which each step is a bit more complex than the previous one, either from functionalities or implementation points of view. Each step will be developed if the previous one has been successfully implemented and deployed within a test network.
+### Description
 
-_Step 1_ - The goal at this step is to build a basic bet system. Participants can bet on the result of a particular, pre-defined event, created by a designated member. The event, as well as the bet, must be uniquely described by sets of predefined information. In this step, the bet stake is predefined. After the end of the event, winning participants can have the payout transferred to his or her wallet by calling the relative function. Non-winning participants would not be able to claim any reward.
+AlgoBet builds a **decentralized bet system**, in which many unknown participants may bet on the result of a particular
+event. The smart contract would collect the bids and - at the end of the event - it will automatically distribute the
+payouts between the winning participants.
 
-Further steps or extensions will be defined if _Step 1_ gets completed.
+At creation time, a *manager* and an *oracle* accounts are chosen, such that they have different permissions among the
+smart contract functionalities. The smart contract instances are disposable, and each one of them represents a
+particular event. In other words, one may instantiate an AlgoBet contract per each event to bet on.
+
+The current implementation allows the participants to place bets by paying a fixed rate (140 milliAlgos). Participants
+are not allowed to place a bet with a higher stake, nor to bet twice. They also cannot place multiple bets with
+different options.
+
+The account creator has also to specify the Unix timestamp of the event end, and an amount of time - since event end -
+in which participants are allowed to request the payout, and the manager will not be able to delete the smart contract.
+
+To support Algorand ecosystem development, particular focus has been given to the usage of
+the [beaker](https://github.com/algorand-devrel/beaker) development framework and to the implementation of smart
+contract tests over the [sandbox](https://github.com/algorand/sandbox) dev environment
+using [pytest](https://github.com/pytest-dev/pytest/) framework.
+
+## State-of-the-art and arisen technical challenges
+
+This section will discuss the state-of-the-art and the technical challenges arisen during the project development.
+
+### Similar use-cases implementations
+
+A [post](https://forum.algorand.org/t/algorand-bet-my-first-attempt-at-a-dapp/3957) exists on the Algorand Forum,
+regarding the realization of a bet system DApp. The project seems dismissed.
+
+The only reference we could find to a working decentralized bet system based on Algorand is represented
+by [AlgoBets](https://github.com/lucasvanmol/algobets), a teal-based project currently running
+at [https://lucasvanmol.github.io/algobets/](https://lucasvanmol.github.io/algobets/) (it seems non-active).
+\
+Based on the project description on the GitHub repository, we could compare the AlgoBets project features to our owns:
+
+<table>
+  <tr>
+   <td><strong>Features</strong>
+   </td>
+   <td>Algobets
+   </td>
+   <td>Our project
+   </td>
+  </tr>
+  <tr>
+   <td>Autonomous payment transactions management
+   </td>
+   <td><strong>✓</strong>
+   </td>
+   <td><strong>✓</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>Undefined number of participants 
+   </td>
+   <td><strong>✓</strong>
+   </td>
+   <td><strong>✓</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>Custom Oracle for event result
+   </td>
+   <td><strong>✘</strong>
+   </td>
+   <td><strong>✓</strong>
+   </td>
+  </tr>
+   <td>High-level language
+   </td>
+   <td><strong>✘</strong>
+   </td>
+   <td><strong>✓</strong>
+   </td>
+  <tr>
+  </tr>
+  <tr>
+   <td>Tests implementations
+   </td>
+   <td><strong>✘</strong>
+   </td>
+   <td><strong>✓</strong>
+   </td>
+  </tr>
+</table>
+
+### Smart contract development framework
+
+PyTeal is the most common Python development framework for writing contracts and compiling them into TEAL code. Despite
+its great support for almost all the AVM functionalities, its usage appears pretty unfriendly and non-pythonic. To
+support Algorand development ecosystem, [beaker](https://github.com/algorand-devrel/beaker) was born as a smart contract
+development framework for PyTeal. Its goal is to provide a better development experience, improving the less
+user-friendly aspects of PyTeal and, for such reason, we believe it to be an important step for the evolution and
+expansion of Algorand ecosystem.
+
+As of today, Beaker is in pre-alpha development status (`beaker-pyteal 0.2.2` package, released on Oct 12, 2022) and
+even though the repository already contains a good amount of examples, the documentation is still insufficient to cover
+all its functionalities.
+
+Our project aims at covering a new use-case, providing a ready-to-go Beaker-based deployable example with a thorough
+test set implementation on top of `pytest` framework.
+
+### Interfacing with real-world data: oracles
+
+The proposed use-case requires our smart contract to deal with data injection from the real world.
+The actor which will push data from real-world to blockchain is often referred to as **oracle**.
+
+AlgoBet smart contract allows to set an address as oracle address, thus authorizing it for executing the application
+calls which deal with data injection. In the current implementation, the _oracle address_ will be the only account
+address authorized for executing the transaction intended to publish the event result into the smart contract,
+named `set_event_result`. Therefore, the oracle acts as a trusted third party in charge of injecting off-chain data -
+events results, in this case - into the AlgoBet instance.
+
+The proposed demo and tests make use of an account to act as oracle. Future implementations may refer an external smart
+contract to act as oracle. Indeed, a C2C transaction may be triggered by the authorized oracle smart contract account to
+notify an event result.
+
+A state-of-the-art oracle provider is [Goracle](https://www.goracle.io/post/algorand-the-future-of-sports-betting). It
+aims to implement Algorand oracles as data feeds from real-world data providers, such as weather services and sport
+results providers. Indeed, [References](https://www.goracle.io/post/algorand-the-future-of-sports-betting) to sports
+decentralized bet systems may be found on its blog.
+
+### Smart contract testing: issues and workarounds
+
+#### Features testing requirements
+
+Often, when linking a smart contract to real-world events, it is necessary to provide the smart contract and real-world
+with a **common timeline**. Transactions will therefore be able to make time comparisons against the common current
+time.
+\
+Algorand, as most of the blockchains, includes a UTC timestamp in each forged block.
+Therefore, within the context of an Algorand smart contract, the safe way of comparing a timestamp with current time is
+to consider the _timestamp of the last forged block_ as _current timestamp_. It is clear that, due to the time interval
+between the creation of blocks, the precision of the _last forged timestamp_ will depend on the amount of time elapsed
+since the last block creation.
+\
+It is then clear that transactions that make use of **timestamps** must be automatically tested to ensure that the
+time-based mechanisms are well-implemented.
+
+If a smart contract deals with payment transactions, then the transactions which take kare of transferring Algos or
+tokens must be automatically tested to ensure that the payment-related mechanisms are well-implemented.
+\
+For instance, our smart contract must be secured against multiple payouts to the same participant, wrong computation of
+payouts, or close-out transaction correctness. It is then clear that applications that make use of **payment
+transactions** must be automatically tested to ensure that the transfer mechanisms are well-implemented.
+\
+Those kind of transactions may be tested by checking the **accounts balances** before and after the possible application
+workflows, asserting that the balances have been correctly affected by the running application.
+
+#### State-of-the-art testing environment issues
+
+[sandbox](https://github.com/algorand/sandbox) is the state-of-the-art Algorand environment used for deploying and
+testing smart contracts. It offers a `dev` configuration which is extremely useful for fast testing of an application.
+Indeed, the `dev` configuration starts a private network in which every transaction being sent to the node automatically
+generates a new block, rather than wait for a new round in real time. This allows instant transactions to happen, with
+almost no time wait for consensus to be applied.
+
+Unfortunately, the current `sandbox` implementation makes developers face some issues:
+
+- As documented by [this](https://github.com/algorand/go-algorand/pull/4643) GitHub pull request
+  and [this](https://github.com/algorand/go-algorand/issues/4642) GitHub issue, even though since approximately May,
+  14th the Mainnet has had the reward rate set to 0 (in favor of the application of governance rewards mechanism), the
+  default sandbox `dev` network continues to give rewards to its accounts.
+
+- As documented by [this](https://github.com/algorand/go-algorand/issues/3192) GitHub issue, the default sandbox `dev`
+  network keeps the time in sync only for about 25s after the last block creation.
+
+- The default sandbox `dev` network does not create any block without a transaction being triggered.
+
+#### Implications on tests and proposed workarounds
+
+Considering the features testing requirements, it's possible to derive that the issues described in the previous
+subsection cause, respectively, the following problems during tests:
+
+- Account balances may be altered by network rewards, thus they are not reliable for checking transactions correctness.
+
+- If time-dependent workflows need to wait more than 25s, then the network will exhibit an inconsistent behaviour.
+
+- If a transaction needs to compare a timestamp with the current time, and thus it retrieves the last block timestamp
+  from the blockchain, then the retrieved timestamp will be as old as the last executed transaction.
+
+The workarounds proposed by us and applied within this repository project are, respectively:
+
+- Make tests and assertions by looking at transaction details, rather than account balances. In this way, we prevent the
+  rewards from altering the test results. Example extracted from `test/test_contract.py`:
+  ```python
+  def test_request_payout_winners(app_addr, participant_client):
+    res = participant_client.call(App.payout)
+    tx_amount = res.tx_info["inner-txns"][0]["txn"]["txn"]["amt"]
+    tx_fee = res.tx_info["inner-txns"][0]["txn"]["txn"]["fee"]
+    # This assertion can't be affected by network rewards
+    assert tx_amount == (140000 * 3 / 2 - tx_fee)
+   ```
+
+- Make tests flows such that no more than 25s elapse between any transaction and the next one.
+
+- Make the test environment to create a dummy transaction, which will be triggered whenever a new block is needed for
+  making timestamp comparisons.
+  When using `pytest` as test framework, a fixture may be used to dynamically configure a client ready to ping the dummy
+  transaction. A snippet extracted from `test/test_contract.py` follows.
+  ```python
+    from contract import AlgoBet as App
+
+    # Workaround for https://github.com/algorand/go-algorand/issues/3192 .
+    # Add a dummy transaction to the smart contract. This transaction may be used for triggering
+    # the creation of a new block when using a sandbox in dev mode. In this way, transactions
+    # which depend on the timestamp of last forged block will be able to retrieve a recent block
+    # for current timestamp estimation.
+    @external
+    def dummy(self):
+        return Approve()
+    
+    App.dummy = dummy
+  
+    @pytest.fixture(scope="class")
+    def ping_sandbox(self, get_client):
+        """Require a dummy transaction for triggering the creation of a new sandbox block.
+        Workaround for https://github.com/algorand/go-algorand/issues/3192 .
+        """
+        c = get_client()
+
+        def _call_dummy(client=c):
+            client.call(App.dummy)
+
+        return _call_dummy
+  ```
 
 ## Smart Contract Specifications
 
-The Smart Contract specifications vary based on the development step.
+In our bet contract participants can bet on the result of a particular, pre-defined event.\
+To enrich this section with a real-world this example, we took inspiration from main team sports’ matches, such as
+football or basketball, which can have three possible general results: _team1 win_, _team2 win_, _tie_.
 
-Each step’s use case is described in the previous section of this document.
+The bet stake is predefined. After the end of the event, winning participants can have the payout transferred to his or
+her wallet by calling the relative function. Non-winning participants would not be able to claim any reward.
 
-_Step 1_
+Following we have an overview of the main elements and features.
 
-- Involved actors
-  - _E_: creates an event
-  - _Px_: participant _x_, which places a bet on the event
-  - _O_: at the end of the event, sets the final result
-- Exposed transactions
-  - `EventCreate` (Smart Contract creation): may be used by the authorized actor _E_ only, to issue the creation of a new Smart Contract related to a particular event (disposable Smart Contract fashion). The event is uniquely described by a set of predefined information, for instance: `event_desc = {event_type, event_timestamp, involved_actors, possible_forecast_options}`, which is passed as a parameter during the Smart Contract creation.
-  - `EventPlaceBet`: may be used by any participant _Px_ to place a bet on a particular event. A bet must be uniquely identified by a set of information passed as a parameter, for instance: `bet_obj = {event_obj, Px_address, forecast_option, bet_amount}`. The forecast option must be one of the options specified into `possible_forecast_options`.
-  - `EventResultSet`: may be used by the oracle account _O_ only, for setting the final result of the event related to that Smart Contract.
-  - `EventBetOutcomeGet`: may be used by any winning participant to retrieve their outcome.
-- Logics
-  - The Smart Contract stores the event descriptor, and manages the bids related to that particular event.
-  - The Smart Contract takes a predefined amount of Algos from each participant _Px_ willing to place a bet. It also takes a small amount of Algos used as a fee for rewarding the oracle _O_.
-  - The Smart Contract can be deleted only if all the winning participants have got their profits.
+### Global and Local state variables
 
-Further steps will be defined if _Step 1_ gets completed. They may include:
+* _Involved actors_:
+  * _Manager (M)_: creates an event
+  * _Px, Py, ..._ : participants that place bets on the event
+  * _Oracle (O)_: at the end of the event, sets the final result
 
-- Implementation of a backup mechanism that refunds the participants _Px_ if the oracle _O_ does not provide the event result within a particular period of time.
-- Implementation of custom stake and consequent payout relative to the stake.
-- Implementation of `EventDelete` transaction, which may be requested by the authorized actor _E_ only, to issue the deletion of the Smart Contract, and which is allowed only after a certain expiry date or if all the winner accounts have already taken their profits.
-- Implementation of oracle actor _O_ as another Smart Contract to improve flexibility
-- Anonymization of each participant’s bets, which are revealed only at the end of the event.
 
-## State of the Art
+* _Application state variables_:
+  * `manager`: stores the creator address
+  * `oracle_addr`: stores the oracle address set by the manager
+  * `event_result`: stores the match result, updated by the oracle
+  * `bet_amount`: stores the fixed stake amount necessary for the bet
+  * `counter_opt_0`, `counter_opt_1`, `counter_opt_2`: store the number of bids on result 0, 1 and 2
+  * `stake_amount`: stores the whole stake amount collected by the contract through the bets;
+  * `winning_count`: stores the number of winning accounts
+  * `winning_payout`: stores the amount of Algos constituting the payout
+  * `event_timestamp`: stores the event end time
+  * `payout_time_window_s`: stores the timeframe in which participants can claim their winnings.
 
-To our knowledge, a state-of-the-art decentralized bet system based on Algorand does not exist, while decentralized betting is a relevant topic, especially from the oracles implementation point of view.
 
-- A [post](https://forum.algorand.org/t/algorand-bet-my-first-attempt-at-a-dapp/3957) exists on the Algorand Forum, regarding the realization of a bet system DApp. The project seems dismissed.
-- References to sports decentralized bet systems may be also found on [Goracle](https://www.goracle.io/post/algorand-the-future-of-sports-betting). Goracle aims to implement Algorand oracles as data feeds from real-world data providers.
+* _Account Variables_:
+  * `chosen_opt`: stores the forecast bet by the participant
+  * `has_placed_bet`: flag that activates when after the bet is placed. Precludes the possibility of multiple bets
+  * `has_requested_payout`: flag activated after payout has been claimed. Precludes the reclaim of the same payout
 
-In this proposal context, oracle services are relevant since the proposed solution, integrated with a suitable oracle, could lead to a fully decentralized bet system in which the participants' fees are only used for rewarding the oracles.
+### Methods
 
-## Technical Challenges
+The smart contract features private methods, exclusively accessible from the contract itself, indicated with
+the `@internal` notation, and a set of exposed transactions indicated by the `@external` notation which can be called by
+external clients.
 
-_Step 1_
+* _Exposed Transactions_:
+  * `create` (Smart Contract creation): may be used by the _Manager_ only, to issue the creation of a new Smart Contract
+    related to a particular event (disposable Smart Contract fashion). At creation time, M sets the oracle address, the
+    end of the match timestamp (which precludes the deletion of the contract before the event termination) and the time
+    window granted to winning participants after the event for claiming their winnings.
+  * `opt_in` (Smart Contract opt-in): may be used by each participant, to opt-in the Smart Contract.
+  * `bet`: may be used by any participant _Px_ to place a bet on the smart contract event. In placing the bet, the
+    participant may bid on one of the three predefined possible forecasts (1, X or 2 = 1, 0 or 2). The stake amount is
+    fixed and predefined.
+  * `set_event_result`: may be called by the authorized _Oracle_ only, to inject the event results into the smart
+    contract. According to the aforementioned constraint, it cannot be called before the end of the event.
+  * `payout`: may be called by winning participants to redeem their winnings. When successfully executed, this function
+    triggers a flag in the calling participant local state, precluding him/her to reclaim the same payout.
+  * `delete`: may be called by the _Manager_ only after the time_window has expired. It deletes the bet event and closes
+    the smart contract account. The balance left in the contract is sent to the manager.
 
-- Implementation of Smart Contracts application using [Beaker](https://github.com/algorand-devrel/beaker).
-- Implementation of a logic which comprises an oracle.
-- Implementation of a scalable system with an unknown number of participants.
-- Unique identification of events.
 
-Further steps will be defined based on next steps requirements and proposed functionalities.
+* _Internal Methods_:
+  * `set_manager`: sets the manager address upon creation
+  * `set_oracle`: sets the oracle address upon creation
+  * `set_event_end_time`: sets the event end time
+  * `set_payout_time`: sets the time frame within which payouts can be requested.
+
+## How to deploy and run
+
+### Environment setup
+
+A Python 3 installation is required to run the demo or tests.
+
+Prepare a virtual environment and install the project requirements with:
+
+```shell
+python3 -m venv venv
+cd src
+
+pip install -r requirements.txt
+pip install -r test/requirements.txt
+```
+
+### Run a Demo
+
+To run a demo of this smart contract, provided that a sandbox network is up and running, just
+execute the smart contract as python script:
+
+```shell
+cd src
+python contract.py
+```
+
+The `demo()` method inside `contract.py` will be executed.
+
+### Run tests
+
+Tests are implemented using the `pytest` test framework for Python.
+To run tests, the sandbox in `dev`mode must be up and running.
+Therefore, we provided the test suite with the possibility to set up and teardown the sandbox network during each test
+session.
+
+Depending on your configuration, set up the `sandbox/sandbox_setup.sh` and `sandbox/sandbox_teardown.sh` shell scripts.
+Then, you can enable automatic execution of those scripts at each run by using the `--sandbox` parameter on the `pytest`
+CLI.
+
+To run the test suite with default settings, just issue:
+
+``` shell
+cd src
+make test
+```
+
+The report will be located at `test_reports/pytest_report.html`.
