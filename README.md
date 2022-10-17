@@ -315,7 +315,7 @@ python contract.py
 
 The `demo()` method inside `src/contract.py` will be executed.
 
-### Run tests
+### Run tests using sandbox in dev configuration
 
 Tests are implemented using the `pytest` test framework for Python.
 To run tests, the sandbox in `dev`mode must be up and running.
@@ -356,3 +356,18 @@ python compile.py
 
 - Develop a mechanism to make the contract account hold enough Algos to pay transaction fees in variable transaction
   fees scenarios.
+
+## Live showcase
+
+To showcase our DApp, we set up an AlgoBet contract, created on `testnet` on Mon, 17 October 2022 20:00:25 (TX ID:
+`MQDBOYVMJETEL5KTVUYUAMLKRAXF2GE2KNEUOQIQQ773OV555RQQ`).
+You can browse the AlgoBet contract
+account [here](https://app.dappflow.org/explorer/account/R73SCK5BKU3TEP3ZBHV3LFWG56HPWGLDTOFATAR75BHIXS256Y7OTHJ4EI/transactions)
+on Dappflow.
+
+The event end has been set on: Tuesday 18 October 2022 17:00:00 (GMT).
+
+
+
+Feel free to test it, placing your bets. You will have 24h from the end of the event to request your payout.
+**Good luck!**
