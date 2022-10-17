@@ -26,9 +26,12 @@ Current state: the proposal has been approved by the School's organising committ
 * [How to deploy and run](#how-to-deploy-and-run)
   + [Environment setup](#environment-setup)
   + [Run a Demo](#run-a-demo)
-  + [Run tests](#run-tests)
+  + [Run the demo using the testnet](#run-the-demo-using-the-testnet)
+  + [Run tests using sandbox in dev configuration](#run-tests-using-sandbox-in-dev-configuration)
+  + [Run tests using sandbox to connect to devnet](#run-tests-using-sandbox-to-connect-to-devnet)
   + [Compile to TEAL](#compile-to-teal)
 * [Future works and improvements](#future-works-and-improvements)
+* [Live showcase - *Bets are open on testnet!*](#live-showcase----bets-are-open-on-testnet--)
 
 ## Project’s Goals
 
@@ -315,6 +318,34 @@ python contract.py
 
 The `demo()` method inside `src/contract.py` will be executed.
 
+### Run the demo using the testnet
+
+The tests can be run deploying the `sandbox` and attaching it to the `testnet`: `./sandbox up testnet`.
+From your `sandbox` folder, create a wallet and populate it with two accounts:
+
+```shell
+./sandbox enter algod
+goal wallet new mywallet
+goal account new -w mywallet
+goal account new -w mywallet
+```
+
+Then, fund those accounts using the [testnet bank](https://bank.testnet.algorand.network/) faucet.
+
+To make `beaker.sandbox` client able to access your wallet, edit the `contract.py/demo()` method as follows:
+
+```python
+# Pop an account from sandbox accounts
+wallet_name = "mywalletname"
+wallet_password = "mywalletpassword"
+sandbox_accounts = sandbox.get_accounts(
+    wallet_name=wallet_name,
+    wallet_password=wallet_password,
+)
+```
+
+Then, you will be able to run the demo script as explained in the previous subsection.
+
 ### Run tests using sandbox in dev configuration
 
 Tests are implemented using the `pytest` test framework for Python.
@@ -323,7 +354,7 @@ Therefore, we provided the test suite with the possibility to set up and teardow
 session.
 
 Depending on your configuration, set up the `src/test/sandbox/sandbox_setup.sh`
-and `src/test/sandbox/sandbox_teardown.sh` shell scripts.
+and `src/test/sandbox/sandbox_teardown.sh` shell scripts to point to your `sandbox` folder.
 Then, you can enable automatic execution of those scripts at each run by using the `--sandbox` parameter on the `pytest`
 CLI.
 
@@ -333,7 +364,13 @@ To run the test suite with default settings, just issue:
 make test
 ```
 
-The report will be located at `test_reports/pytest_report.html`.
+The report will be located at `src/test/reports/pytest_report.html`. You can find a sample report there.
+
+### Run tests using sandbox to connect to devnet
+
+To run tests deploying the contract on `devnet`, you have to implement the snippet shown in _"Run the demo using the
+testnet"_ section into `test_contract.py/TestBase.accounts()`.
+Be sure to create enough accounts before running the tests.
 
 ### Compile to TEAL
 
@@ -357,17 +394,15 @@ python compile.py
 - Develop a mechanism to make the contract account hold enough Algos to pay transaction fees in variable transaction
   fees scenarios.
 
-## Live showcase
+## Live showcase - *Bets are open on testnet!*
 
 To showcase our DApp, we set up an AlgoBet contract, created on `testnet` on Mon, 17 October 2022 20:00:25 (TX ID:
-`MQDBOYVMJETEL5KTVUYUAMLKRAXF2GE2KNEUOQIQQ773OV555RQQ`).
-You can browse the AlgoBet contract
-account [here](https://app.dappflow.org/explorer/account/R73SCK5BKU3TEP3ZBHV3LFWG56HPWGLDTOFATAR75BHIXS256Y7OTHJ4EI/transactions)
-on Dappflow.
+`MQDBOYVMJETEL5KTVUYUAMLKRAXF2GE2KNEUOQIQQ773OV555RQQ`).\
+You can browse the AlgoBet contract account [here](https://app.dappflow.org/explorer/account/R73SCK5BKU3TEP3ZBHV3LFWG56HPWGLDTOFATAR75BHIXS256Y7OTHJ4EI/transactions) on Dappflow.
+
+![Dappflow screenshot](docs/img/showcase_dappflow.png)
 
 The event end has been set on: Tuesday 18 October 2022 17:00:00 (GMT).
 
-
-
-Feel free to test it, placing your bets. You will have 24h from the end of the event to request your payout.
+Feel free to test it, placing your bets. You will have 24h since the end of the event to request your payout.
 **Good luck!**
