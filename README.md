@@ -72,56 +72,13 @@ at [https://lucasvanmol.github.io/algobets/](https://lucasvanmol.github.io/algob
 \
 Based on the project description on the GitHub repository, we could compare the AlgoBets project features to our owns:
 
-<table>
-  <tr>
-   <td><strong>Features</strong>
-   </td>
-   <td>Algobets
-   </td>
-   <td>Our project
-   </td>
-  </tr>
-  <tr>
-   <td>Autonomous payment transactions management
-   </td>
-   <td><strong>✓</strong>
-   </td>
-   <td><strong>✓</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>Undefined number of participants 
-   </td>
-   <td><strong>✓</strong>
-   </td>
-   <td><strong>✓</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>Custom Oracle for event result
-   </td>
-   <td><strong>✘</strong>
-   </td>
-   <td><strong>✓</strong>
-   </td>
-  </tr>
-   <td>High-level language
-   </td>
-   <td><strong>✘</strong>
-   </td>
-   <td><strong>✓</strong>
-   </td>
-  <tr>
-  </tr>
-  <tr>
-   <td>Tests implementations
-   </td>
-   <td><strong>✘</strong>
-   </td>
-   <td><strong>✓</strong>
-   </td>
-  </tr>
-</table>
+| ***Features***                             | *Algobets* | *Our project* |
+|--------------------------------------------|------------|---------------|
+| Autonomous payment transactions management | **✓**      | **✓**         |
+| Undefined number of participants           | **✓**      | **✓**         |
+| Custom Oracle for event result             | ✘          | **✓**         |
+| High-level language                        | ✘          | **✓**         |
+| Tests implementations                      | ✘          | **✓**         |
 
 ### Smart contract development framework
 
@@ -390,7 +347,8 @@ python compile.py
 
 ## Future works and improvements
 
-- Implement an always-on parent contract, which can be used to spawn AlgoBet child contracts.
+- Implement an always-on parent contract, which can be used to spawn AlgoBet child contracts, using the approach
+  suggested in [algorand-devrel/parent-child-contracts](https://github.com/algorand-devrel/parent-child-contracts).
 
 - Implement custom bet stake for each participant, thus adapting the payout system to more complex situations.
 
