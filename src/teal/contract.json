@@ -1,0 +1,11 @@
+('{"name": "AlgoBet", "methods": [{"name": "bet", "args": [{"type": "uint64", '
+ '"name": "opt"}, {"type": "pay", "name": "bet_deposit_tx"}], "returns": '
+ '{"type": "void"}, "desc": "Place a bet."}, {"name": "create", "args": '
+ '[{"type": "address", "name": "manager_addr"}, {"type": "address", "name": '
+ '"oracle_addr"}, {"type": "uint64", "name": "event_end_unix_timestamp"}, '
+ '{"type": "uint64", "name": "payout_time_window_s"}], "returns": {"type": '
+ '"void"}, "desc": "Initialize application state variables at creation '
+ 'time."}, {"name": "payout", "args": [], "returns": {"type": "void"}}, '
+ '{"name": "set_event_result", "args": [{"type": "uint64", "name": "opt"}], '
+ '"returns": {"type": "void"}, "desc": "Set the event result."}], "networks": '
+ '{}}')

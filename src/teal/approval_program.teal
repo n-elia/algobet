@@ -1,0 +1,542 @@
+#pragma version 7
+intcblock 0 1 2 99 1000
+bytecblock 0x77696e6e696e675f636f756e74 0x6576656e745f74696d657374616d70 0x7374616b655f616d6f756e74 0x6576656e745f726573756c74 0x636f756e7465725f6f70745f32 0x636f756e7465725f6f70745f31 0x636f756e7465725f6f70745f30 0x77696e6e696e675f7061796f7574 0x6f7261636c655f61646472 0x6d616e61676572 0x7061796f75745f74696d655f77696e646f775f73 0x63686f73656e5f6f7074 0x6861735f706c616365645f626574 0x6861735f7265717565737465645f7061796f7574 0x6265745f616d6f756e74
+txn NumAppArgs
+intc_0 // 0
+==
+bnz main_l10
+txna ApplicationArgs 0
+pushbytes 0x524b57ce // "bet(uint64,pay)void"
+==
+bnz main_l9
+txna ApplicationArgs 0
+pushbytes 0x79bca08b // "create(address,address,uint64,uint64)void"
+==
+bnz main_l8
+txna ApplicationArgs 0
+pushbytes 0xce706dd1 // "payout()void"
+==
+bnz main_l7
+txna ApplicationArgs 0
+pushbytes 0xfabd6f88 // "set_event_result(uint64)void"
+==
+bnz main_l6
+err
+main_l6:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+txna ApplicationArgs 1
+btoi
+callsub seteventresult_9
+intc_1 // 1
+return
+main_l7:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+callsub payout_7
+intc_1 // 1
+return
+main_l8:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+==
+&&
+assert
+txna ApplicationArgs 1
+store 2
+txna ApplicationArgs 2
+store 3
+txna ApplicationArgs 3
+btoi
+store 4
+txna ApplicationArgs 4
+btoi
+store 5
+load 2
+load 3
+load 4
+load 5
+callsub create_6
+intc_1 // 1
+return
+main_l9:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+txna ApplicationArgs 1
+btoi
+store 0
+txn GroupIndex
+intc_1 // 1
+-
+store 1
+load 1
+gtxns TypeEnum
+intc_1 // pay
+==
+assert
+load 0
+load 1
+callsub bet_5
+intc_1 // 1
+return
+main_l10:
+txn OnCompletion
+intc_1 // OptIn
+==
+bnz main_l14
+txn OnCompletion
+pushint 5 // DeleteApplication
+==
+bnz main_l13
+err
+main_l13:
+txn ApplicationID
+intc_0 // 0
+!=
+assert
+callsub delete_2
+intc_1 // 1
+return
+main_l14:
+txn ApplicationID
+intc_0 // 0
+!=
+assert
+callsub optin_3
+intc_1 // 1
+return
+
+// auth_only
+authonly_0:
+bytec 8 // "oracle_addr"
+app_global_get
+==
+retsub
+
+// auth_only
+authonly_1:
+bytec 9 // "manager"
+app_global_get
+==
+retsub
+
+// delete
+delete_2:
+txn Sender
+callsub authonly_1
+// unauthorized
+assert
+global LatestTimestamp
+bytec_1 // "event_timestamp"
+app_global_get
+>=
+// Event expiry time not reached, yet.
+assert
+global LatestTimestamp
+bytec_1 // "event_timestamp"
+app_global_get
+bytec 10 // "payout_time_window_s"
+app_global_get
++
+>=
+// Payout time not expired, yet.
+assert
+itxn_begin
+intc_1 // pay
+itxn_field TypeEnum
+txn Sender
+itxn_field Receiver
+intc_0 // 0
+itxn_field Amount
+txn Sender
+itxn_field CloseRemainderTo
+itxn_submit
+intc_1 // 1
+return
+
+// opt_in
+optin_3:
+txn Sender
+bytec 11 // "chosen_opt"
+intc_0 // 0
+app_local_put
+txn Sender
+bytec 12 // "has_placed_bet"
+intc_0 // 0
+app_local_put
+txn Sender
+bytec 13 // "has_requested_payout"
+intc_0 // 0
+app_local_put
+retsub
+
+// auth_opted_in
+authoptedin_4:
+global CurrentApplicationID
+app_opted_in
+retsub
+
+// bet
+bet_5:
+store 7
+store 6
+txn Sender
+callsub authoptedin_4
+// unauthorized
+assert
+bytec_3 // "event_result"
+app_global_get
+intc_3 // 99
+==
+// The event is closed. Bets are no more allowed
+assert
+load 7
+gtxns Amount
+bytec 14 // "bet_amount"
+app_global_get
+==
+// Bet amount is wrong
+assert
+load 7
+gtxns Receiver
+global CurrentApplicationAddress
+==
+// Receiver must be the smart contract
+assert
+txn Sender
+bytec 12 // "has_placed_bet"
+app_local_get
+intc_0 // 0
+==
+// User has already placed a bet
+assert
+load 6
+intc_0 // 0
+==
+bnz bet_5_l13
+load 6
+intc_1 // 1
+==
+bnz bet_5_l12
+load 6
+intc_2 // 2
+==
+bnz bet_5_l4
+err
+bet_5_l4:
+intc_1 // 1
+bet_5_l5:
+// Valid options are: 0, 1, 2
+assert
+txn Sender
+bytec 11 // "chosen_opt"
+load 6
+app_local_put
+load 6
+intc_0 // 0
+==
+bnz bet_5_l11
+load 6
+intc_1 // 1
+==
+bnz bet_5_l10
+load 6
+intc_2 // 2
+==
+bnz bet_5_l9
+err
+bet_5_l9:
+bytec 4 // "counter_opt_2"
+bytec 4 // "counter_opt_2"
+app_global_get
+intc_1 // 1
++
+app_global_put
+b bet_5_l14
+bet_5_l10:
+bytec 5 // "counter_opt_1"
+bytec 5 // "counter_opt_1"
+app_global_get
+intc_1 // 1
++
+app_global_put
+b bet_5_l14
+bet_5_l11:
+bytec 6 // "counter_opt_0"
+bytec 6 // "counter_opt_0"
+app_global_get
+intc_1 // 1
++
+app_global_put
+b bet_5_l14
+bet_5_l12:
+intc_1 // 1
+b bet_5_l5
+bet_5_l13:
+intc_1 // 1
+b bet_5_l5
+bet_5_l14:
+txn Sender
+bytec 12 // "has_placed_bet"
+intc_1 // 1
+app_local_put
+bytec_2 // "stake_amount"
+bytec_2 // "stake_amount"
+app_global_get
+bytec 14 // "bet_amount"
+app_global_get
++
+app_global_put
+retsub
+
+// create
+create_6:
+store 11
+store 10
+store 9
+store 8
+bytec 14 // "bet_amount"
+pushint 140000 // 140000
+app_global_put
+bytec 6 // "counter_opt_0"
+intc_0 // 0
+app_global_put
+bytec 5 // "counter_opt_1"
+intc_0 // 0
+app_global_put
+bytec 4 // "counter_opt_2"
+intc_0 // 0
+app_global_put
+bytec_3 // "event_result"
+intc_3 // 99
+app_global_put
+bytec_1 // "event_timestamp"
+intc_0 // 0
+app_global_put
+bytec 9 // "manager"
+global CreatorAddress
+app_global_put
+bytec 8 // "oracle_addr"
+global CreatorAddress
+app_global_put
+bytec 10 // "payout_time_window_s"
+intc_0 // 0
+app_global_put
+bytec_2 // "stake_amount"
+intc_0 // 0
+app_global_put
+bytec_0 // "winning_count"
+intc_0 // 0
+app_global_put
+bytec 7 // "winning_payout"
+intc_0 // 0
+app_global_put
+load 8
+txn Sender
+!=
+bnz create_6_l3
+create_6_l1:
+load 9
+txn Sender
+!=
+bz create_6_l4
+load 9
+callsub setoracle_11
+b create_6_l4
+create_6_l3:
+load 8
+callsub setmanager_10
+b create_6_l1
+create_6_l4:
+load 10
+global LatestTimestamp
+>
+// Expiry time must be in the future.
+assert
+load 10
+callsub seteventendtime_8
+load 11
+callsub setpayouttime_12
+retsub
+
+// payout
+payout_7:
+bytec_3 // "event_result"
+app_global_get
+txn Sender
+bytec 11 // "chosen_opt"
+app_local_get
+==
+// You did not choose the winning option
+assert
+txn Sender
+bytec 13 // "has_requested_payout"
+app_local_get
+intc_0 // 0
+==
+// You already requested your payout
+assert
+txn Sender
+bytec 13 // "has_requested_payout"
+intc_1 // 1
+app_local_put
+itxn_begin
+intc_1 // pay
+itxn_field TypeEnum
+txn Sender
+itxn_field Receiver
+bytec 7 // "winning_payout"
+app_global_get
+itxn_field Amount
+itxn_submit
+retsub
+
+// set_event_end_time
+seteventendtime_8:
+store 12
+bytec_1 // "event_timestamp"
+load 12
+app_global_put
+retsub
+
+// set_event_result
+seteventresult_9:
+store 16
+txn Sender
+callsub authonly_0
+// unauthorized
+assert
+global LatestTimestamp
+bytec_1 // "event_timestamp"
+app_global_get
+>=
+// Event expiry time not reached, yet.
+assert
+load 16
+intc_0 // 0
+==
+bnz seteventresult_9_l16
+load 16
+intc_1 // 1
+==
+bnz seteventresult_9_l15
+load 16
+intc_2 // 2
+==
+bnz seteventresult_9_l4
+err
+seteventresult_9_l4:
+intc_1 // 1
+seteventresult_9_l5:
+// Valid options are: 0, 1, 2
+assert
+bytec_3 // "event_result"
+load 16
+app_global_put
+load 16
+intc_0 // 0
+==
+bnz seteventresult_9_l14
+load 16
+intc_1 // 1
+==
+bnz seteventresult_9_l13
+load 16
+intc_2 // 2
+==
+bnz seteventresult_9_l9
+err
+seteventresult_9_l9:
+bytec_0 // "winning_count"
+bytec 4 // "counter_opt_2"
+app_global_get
+app_global_put
+seteventresult_9_l10:
+bytec_0 // "winning_count"
+app_global_get
+intc_0 // 0
+==
+bnz seteventresult_9_l12
+bytec 7 // "winning_payout"
+bytec_2 // "stake_amount"
+app_global_get
+bytec_0 // "winning_count"
+app_global_get
+/
+intc 4 // 1000
+-
+app_global_put
+b seteventresult_9_l17
+seteventresult_9_l12:
+bytec 7 // "winning_payout"
+bytec_2 // "stake_amount"
+app_global_get
+intc 4 // 1000
+-
+app_global_put
+b seteventresult_9_l17
+seteventresult_9_l13:
+bytec_0 // "winning_count"
+bytec 5 // "counter_opt_1"
+app_global_get
+app_global_put
+b seteventresult_9_l10
+seteventresult_9_l14:
+bytec_0 // "winning_count"
+bytec 6 // "counter_opt_0"
+app_global_get
+app_global_put
+b seteventresult_9_l10
+seteventresult_9_l15:
+intc_1 // 1
+b seteventresult_9_l5
+seteventresult_9_l16:
+intc_1 // 1
+b seteventresult_9_l5
+seteventresult_9_l17:
+retsub
+
+// set_manager
+setmanager_10:
+store 13
+bytec 9 // "manager"
+load 13
+app_global_put
+retsub
+
+// set_oracle
+setoracle_11:
+store 14
+bytec 8 // "oracle_addr"
+load 14
+app_global_put
+retsub
+
+// set_payout_time
+setpayouttime_12:
+store 15
+bytec 10 // "payout_time_window_s"
+load 15
+app_global_put
+retsub
