@@ -320,8 +320,8 @@ Prepare a virtual environment and install the project requirements with:
 python3 -m venv venv
 cd src
 
-pip install -r requirements.txt
-pip install -r test/requirements.txt
+pip install -r src/requirements.txt
+pip install -r src/test/requirements.txt
 ```
 
 ### Run a Demo
@@ -334,7 +334,7 @@ cd src
 python contract.py
 ```
 
-The `demo()` method inside `contract.py` will be executed.
+The `demo()` method inside `src/contract.py` will be executed.
 
 ### Run tests
 
@@ -343,14 +343,13 @@ To run tests, the sandbox in `dev`mode must be up and running.
 Therefore, we provided the test suite with the possibility to set up and teardown the sandbox network during each test
 session.
 
-Depending on your configuration, set up the `sandbox/sandbox_setup.sh` and `sandbox/sandbox_teardown.sh` shell scripts.
+Depending on your configuration, set up the `src/test/sandbox/sandbox_setup.sh` and `src/test/sandbox/sandbox_teardown.sh` shell scripts.
 Then, you can enable automatic execution of those scripts at each run by using the `--sandbox` parameter on the `pytest`
 CLI.
 
 To run the test suite with default settings, just issue:
 
 ``` shell
-cd src
 make test
 ```
 
