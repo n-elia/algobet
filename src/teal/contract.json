@@ -1,11 +1,77 @@
-('{"name": "AlgoBet", "methods": [{"name": "bet", "args": [{"type": "uint64", '
- '"name": "opt"}, {"type": "pay", "name": "bet_deposit_tx"}], "returns": '
- '{"type": "void"}, "desc": "Place a bet."}, {"name": "create", "args": '
- '[{"type": "address", "name": "manager_addr"}, {"type": "address", "name": '
- '"oracle_addr"}, {"type": "uint64", "name": "event_end_unix_timestamp"}, '
- '{"type": "uint64", "name": "payout_time_window_s"}], "returns": {"type": '
- '"void"}, "desc": "Initialize application state variables at creation '
- 'time."}, {"name": "payout", "args": [], "returns": {"type": "void"}}, '
- '{"name": "set_event_result", "args": [{"type": "uint64", "name": "opt"}], '
- '"returns": {"type": "void"}, "desc": "Set the event result."}], "networks": '
- '{}}')
+{
+  "name": "AlgoBet",
+  "methods": [
+    {
+      "name": "bet",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "opt",
+          "desc": "Chosen option."
+        },
+        {
+          "type": "pay",
+          "name": "bet_deposit_tx",
+          "desc": "Payment transaction of the bet deposit."
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "desc": "Place a bet."
+    },
+    {
+      "name": "create",
+      "args": [
+        {
+          "type": "address",
+          "name": "manager_addr",
+          "desc": "Address of the account to be set as manager."
+        },
+        {
+          "type": "address",
+          "name": "oracle_addr",
+          "desc": "Address of the account to be set as oracle."
+        },
+        {
+          "type": "uint64",
+          "name": "event_end_unix_timestamp",
+          "desc": "Unix timestamp of event end."
+        },
+        {
+          "type": "uint64",
+          "name": "payout_time_window_s",
+          "desc": "Payout time interval, expressed in seconds."
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "desc": "Create an AlgoBet contract instance, bound to a particular event."
+    },
+    {
+      "name": "payout",
+      "args": [],
+      "returns": {
+        "type": "void"
+      },
+      "desc": "Request the payout. Only works for winning participants."
+    },
+    {
+      "name": "set_event_result",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "opt",
+          "desc": "Winning option."
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "desc": "Set the event result. Only the oracle account is authorized to request this transaction."
+    }
+  ],
+  "networks": {},
+  "desc": " AlgoBet smart contract definition. "
+}

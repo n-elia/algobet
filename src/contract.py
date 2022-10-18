@@ -28,39 +28,39 @@ network_min_trans_fee = Int(1000)
 
 # Create an app subclassing `beaker.Application`
 class AlgoBet(Application):
+    """ AlgoBet smart contract definition. """
+
     ###########################################
     # Application State
     ###########################################
 
-    # Store a "manager" account, which will have particular privileges
     manager: Final[ApplicationStateValue] = ApplicationStateValue(
         stack_type=TealType.bytes,
         # Default to the application creator address
-        default=Global.creator_address()
+        default=Global.creator_address(),
+        descr="Manager account, which will have particular privileges"
     )
 
-    # Store the oracle address
     oracle_addr: Final[ApplicationStateValue] = ApplicationStateValue(
         stack_type=TealType.bytes,
         # Default to the application creator address
-        default=Global.creator_address()
+        default=Global.creator_address(),
+        descr="Oracle account address"
     )
 
-    # Store the event result
     event_result: Final[ApplicationStateValue] = ApplicationStateValue(
         stack_type=TealType.uint64,
-        default=Int(99)
+        default=Int(99),
+        descr="Event result",
     )
 
-    # Store the fixed bet amount
     bet_amount: Final[ApplicationStateValue] = ApplicationStateValue(
         stack_type=TealType.uint64,
         # Defaults to 140 milliAlgos
         default=consts.MilliAlgos(140),
-        descr="Fixed bet amount."
+        descr="Fixed bet amount"
     )
 
-    # Store the bet options
     counter_opt_0: Final[ApplicationStateValue] = ApplicationStateValue(
         stack_type=TealType.uint64,
         default=Int(0),
@@ -82,7 +82,7 @@ class AlgoBet(Application):
     stake_amount: Final[ApplicationStateValue] = ApplicationStateValue(
         stack_type=TealType.uint64,
         default=Int(0),
-        descr="Algos collected with bets"
+        descr="Total stake collected with bets deposits"
     )
 
     winning_count: Final[ApplicationStateValue] = ApplicationStateValue(
@@ -138,7 +138,14 @@ class AlgoBet(Application):
                oracle_addr: abi.Address,
                event_end_unix_timestamp: abi.Uint64,
                payout_time_window_s: abi.Uint64):
-        """ Initialize application state variables at creation time. """
+        """ Create an AlgoBet contract instance, bound to a particular event.
+
+        Args:
+            manager_addr: Address of the account to be set as manager.
+            oracle_addr: Address of the account to be set as oracle.
+            event_end_unix_timestamp: Unix timestamp of event end.
+            payout_time_window_s: Payout time interval, expressed in seconds.
+        """
         return Seq(
             self.initialize_application_state(),
             If(manager_addr.get() != Txn.sender(), self.set_manager(manager_addr)),
@@ -153,7 +160,11 @@ class AlgoBet(Application):
     # Authorize only the manager account to request this transaction
     @external(authorize=Authorize.only(addr=oracle_addr))
     def set_event_result(self, opt: abi.Uint64):
-        """ Set the event result. """
+        """ Set the event result. Only the oracle account is authorized to request this transaction.
+
+        Args:
+            opt: Winning option.
+        """
         return Seq(
             Assert(Global.latest_timestamp() >= self.event_timestamp.get(),
                    comment="Event expiry time not reached, yet."),
@@ -199,6 +210,7 @@ class AlgoBet(Application):
 
     @delete(authorize=Authorize.only(manager))
     def delete(self):
+        """ Delete the AlgoBet smart contract instance. """
         return Seq(
             # Assert that the event ended
             Assert(Global.latest_timestamp() >= self.event_timestamp.get(),
@@ -259,7 +271,12 @@ class AlgoBet(Application):
 
     @external(authorize=Authorize.opted_in(app_id=Application.id))
     def bet(self, opt: abi.Uint64, bet_deposit_tx: abi.PaymentTransaction):
-        """ Place a bet. """
+        """ Place a bet.
+
+        Args:
+            opt: Chosen option.
+            bet_deposit_tx: Payment transaction of the bet deposit.
+        """
         return Seq(
             # Check if the event has been closed
             Assert(
@@ -306,6 +323,7 @@ class AlgoBet(Application):
 
     @external
     def payout(self):
+        """ Request the payout. Only works for winning participants. """
         return Seq(
             # Assert that the participant has chosen the winning option
             Assert(
