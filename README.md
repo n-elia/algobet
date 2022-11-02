@@ -136,7 +136,7 @@ since the last block creation.
 It is then clear that transactions that make use of **timestamps** must be automatically tested to ensure that the
 time-based mechanisms are well-implemented.
 
-If a smart contract deals with payment transactions, then the transactions which take kare of transferring Algos or
+If a smart contract deals with payment transactions, then the transactions which take care of transferring Algos or
 tokens must be automatically tested to ensure that the payment-related mechanisms are well-implemented.
 \
 For instance, our smart contract must be secured against multiple payouts to the same participant, wrong computation of
