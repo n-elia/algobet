@@ -15,13 +15,13 @@ logger.setLevel(logging.DEBUG)
 
 
 # Add a "time" column to html output, to understand the tests execution order
-@pytest.mark.optionalhook
+@pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_header(cells):
     cells.insert(3, html.th('Time', class_='sortable time', col='time'))
     cells.pop()
 
 
-@pytest.mark.optionalhook
+@pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_row(report, cells):
     cells.insert(3, html.td(datetime.utcnow(), class_='col-time'))
     cells.pop()
@@ -58,8 +58,8 @@ def sandbox_setup(enable_sandbox_management):
     """
     # Shell scripts to manage the sandbox
     # Alternatively, sandbox binary with proper parameters can be used here
-    setup_script_fp = 'test/sandbox/sandbox_setup.sh'
-    teardown_script_fp = 'test/sandbox/sandbox_teardown.sh'
+    setup_script_fp = 'src/test/sandbox-scripts/sandbox_setup.sh'
+    teardown_script_fp = 'src/test/sandbox-scripts/sandbox_teardown.sh'
 
     def run_and_wait(script_filepath):
         import subprocess

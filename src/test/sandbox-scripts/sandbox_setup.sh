@@ -1,5 +1,5 @@
 #!/bin/sh
-cd /home/ubi/Documents/algorand-learning/sandbox/sandbox || exit
+cd src/test/sandbox || exit
 ./sandbox up dev
 
 # Create additional_accounts, funding them from the main one

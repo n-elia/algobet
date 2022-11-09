@@ -97,7 +97,13 @@ class AlgoBet(Application):
         descr="Algos that winner participants will receive"
     )
 
-    event_timestamp: Final[ApplicationStateValue] = ApplicationStateValue(
+    event_start_timestamp: Final[ApplicationStateValue] = ApplicationStateValue(
+        stack_type=TealType.uint64,
+        default=Int(0),
+        descr="Unix UTC timestamp at which the event starts"
+    )
+
+    event_end_timestamp: Final[ApplicationStateValue] = ApplicationStateValue(
         stack_type=TealType.uint64,
         default=Int(0),
         descr="Unix UTC timestamp at which the event ends"
@@ -136,6 +142,7 @@ class AlgoBet(Application):
     def create(self,
                manager_addr: abi.Address,
                oracle_addr: abi.Address,
+               event_start_unix_timestamp: abi.Uint64,
                event_end_unix_timestamp: abi.Uint64,
                payout_time_window_s: abi.Uint64):
         """ Create an AlgoBet contract instance, bound to a particular event.
@@ -143,6 +150,7 @@ class AlgoBet(Application):
         Args:
             manager_addr: Address of the account to be set as manager.
             oracle_addr: Address of the account to be set as oracle.
+            event_start_unix_timestamp: Unix timestamp of event start.
             event_end_unix_timestamp: Unix timestamp of event end.
             payout_time_window_s: Payout time interval, expressed in seconds.
         """
@@ -152,7 +160,11 @@ class AlgoBet(Application):
             If(oracle_addr.get() != Txn.sender(), self.set_oracle(oracle_addr)),
             # Checks that the provided event timestamp represents a future period
             Assert(event_end_unix_timestamp.get() > Global.latest_timestamp(),
-                   comment="Expiry time must be in the future."),
+                   comment="Event end time must be in the future."),
+            # Assert that the event has not started
+            Assert(event_end_unix_timestamp.get() > event_start_unix_timestamp.get(),
+                   comment="Event end must occur after the event start."),
+            self.set_event_start_time(event_start_unix_timestamp),
             self.set_event_end_time(event_end_unix_timestamp),
             self.set_payout_time(payout_time_window_s),
         )
@@ -166,7 +178,7 @@ class AlgoBet(Application):
             opt: Winning option.
         """
         return Seq(
-            Assert(Global.latest_timestamp() >= self.event_timestamp.get(),
+            Assert(Global.latest_timestamp() >= self.event_end_timestamp.get(),
                    comment="Event expiry time not reached, yet."),
             # Assert that the option is valid
             Assert(
@@ -213,10 +225,10 @@ class AlgoBet(Application):
         """ Delete the AlgoBet smart contract instance. """
         return Seq(
             # Assert that the event ended
-            Assert(Global.latest_timestamp() >= self.event_timestamp.get(),
+            Assert(Global.latest_timestamp() >= self.event_end_timestamp.get(),
                    comment="Event expiry time not reached, yet."),
             # Assert that the payout time elapsed
-            Assert(Global.latest_timestamp() >= self.event_timestamp.get() + self.payout_time_window_s.get(),
+            Assert(Global.latest_timestamp() >= self.event_end_timestamp.get() + self.payout_time_window_s.get(),
                    comment="Payout time not expired, yet."),
             # Make a transaction for closing out the smart contract account
             InnerTxnBuilder.Execute(
@@ -256,9 +268,14 @@ class AlgoBet(Application):
         return self.oracle_addr.set(new_oracle_addr.get())
 
     @internal(TealType.none)
+    def set_event_start_time(self, unix_timestamp: abi.Uint64):
+        """ Change the timestamp at which the event starts. """
+        return self.event_start_timestamp.set(unix_timestamp.get())
+
+    @internal(TealType.none)
     def set_event_end_time(self, unix_timestamp: abi.Uint64):
         """ Change the timestamp at which the event ends. """
-        return self.event_timestamp.set(unix_timestamp.get())
+        return self.event_end_timestamp.set(unix_timestamp.get())
 
     @internal(TealType.none)
     def set_payout_time(self, time_s: abi.Uint64):
@@ -278,11 +295,9 @@ class AlgoBet(Application):
             bet_deposit_tx: Payment transaction of the bet deposit.
         """
         return Seq(
-            # Check if the event has been closed
-            Assert(
-                self.event_result.get() == self.event_result.default,
-                comment="The event is closed. Bets are no more allowed"
-            ),
+            # Assert that the event has not started
+            Assert(Global.latest_timestamp() < self.event_start_timestamp.get(),
+                   comment="Event has already started"),
             # Check if the bet is equal to the fixed amount
             Assert(
                 bet_deposit_tx.get().amount() == self.bet_amount.get(),
@@ -321,7 +336,7 @@ class AlgoBet(Application):
             self.stake_amount.set(self.stake_amount.get() + self.bet_amount.get())
         )
 
-    @external
+    @external(authorize=Authorize.opted_in(app_id=Application.id))
     def payout(self):
         """ Request the payout. Only works for winning participants. """
         return Seq(
@@ -381,7 +396,8 @@ def demo():
     app_id, app_addr, tx_id = app_client_acct_2.create(
         manager_addr=acct_2.address,
         oracle_addr=acct_1.address,
-        event_end_unix_timestamp=int(time.time() + 0),
+        event_start_unix_timestamp=int(time.time() + 2),
+        event_end_unix_timestamp=int(time.time() + 3),
         payout_time_window_s=int(0)
     )
     print(f"Created app with id: {app_id} and address: {app_addr} in tx: {tx_id}")
@@ -470,8 +486,8 @@ def demo():
     spacer("Account 1 (oracle) sets the event result")
 
     # Try setting the event result
-    print("Requesting set_event_result() transaction in 3s...")
-    time.sleep(3)
+    print("Requesting set_event_result() transaction in 10s...")
+    time.sleep(10)
     app_client_acct_1.call(
         AlgoBet.set_event_result,  # noqa
         opt=1
