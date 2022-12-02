@@ -1,3 +1,5 @@
+![Background picture](docs/img/bg.svg)
+
 # AlgoBet - A decentralized bet system powered by Algorand
 
 _Authors: Group 5 - Nicola Elia, Alessandro Parenti, Domenico Tortola_
@@ -31,7 +33,7 @@ Current state: the proposal has been approved by the School's organising committ
   + [Run tests using sandbox to connect to devnet](#run-tests-using-sandbox-to-connect-to-devnet)
   + [Compile to TEAL](#compile-to-teal)
 * [Future works and improvements](#future-works-and-improvements)
-* [Live showcase - *Bets are open on testnet!*](#live-showcase----bets-are-open-on-testnet--)
+* [Live showcase](#live-showcase)
 
 ## Project’s Goals
 
@@ -52,8 +54,9 @@ The current implementation allows the participants to place bets by paying a fix
 are not allowed to place a bet with a higher stake, nor to bet twice. They also cannot place multiple bets with
 different options.
 
-The account creator has also to specify the Unix timestamp of the event end, and an amount of time - since event end -
-in which participants are allowed to request the payout, and the manager will not be able to delete the smart contract.
+The account creator has also to specify the Unix timestamps of the event start and end, and an amount of time - since
+event end - in which participants are allowed to request the payout while the manager will not be able to delete the
+smart contract.
 
 To support Algorand ecosystem development, particular focus has been given to the usage of
 the [beaker](https://github.com/algorand-devrel/beaker) development framework and to the implementation of smart
@@ -238,28 +241,29 @@ Following we have an overview of the main elements and features.
 ### Global and Local state variables
 
 * _Involved actors_:
-  * _Manager (M)_: creates an event
-  * _Px, Py, ..._ : participants that place bets on the event
-  * _Oracle (O)_: at the end of the event, sets the final result
+  * _Manager (M)_: creates an event.
+  * _Px, Py, ..._ : participants that place bets on the event.
+  * _Oracle (O)_: at the end of the event, sets the final result.
 
 
 * _Application state variables_:
-  * `manager`: stores the creator address
-  * `oracle_addr`: stores the oracle address set by the manager
-  * `event_result`: stores the match result, updated by the oracle
-  * `bet_amount`: stores the fixed stake amount necessary for the bet
-  * `counter_opt_0`, `counter_opt_1`, `counter_opt_2`: store the number of bids on result 0, 1 and 2
-  * `stake_amount`: stores the whole stake amount collected by the contract through the bets;
-  * `winning_count`: stores the number of winning accounts
-  * `winning_payout`: stores the amount of Algos constituting the payout
-  * `event_timestamp`: stores the event end time
+  * `manager`: stores the creator address.
+  * `oracle_addr`: stores the oracle address set by the manager.
+  * `event_result`: stores the match result, updated by the oracle.
+  * `bet_amount`: stores the fixed stake amount necessary for the bet.
+  * `counter_opt_0`, `counter_opt_1`, `counter_opt_2`: store the number of bids on result 0, 1 and 2.
+  * `stake_amount`: stores the whole stake amount collected by the contract through the bets.
+  * `winning_count`: stores the number of winning accounts.
+  * `winning_payout`: stores the amount of Algos constituting the payout.
+  * `event_start_timestamp`: stores the event start time, expressed as Unix timestamp.
+  * `event_end_timestamp`: stores the event end time, expressed as Unix timestamp.
   * `payout_time_window_s`: stores the timeframe in which participants can claim their winnings.
 
 
 * _Account Variables_:
-  * `chosen_opt`: stores the forecast bet by the participant
-  * `has_placed_bet`: flag that activates when after the bet is placed. Precludes the possibility of multiple bets
-  * `has_requested_payout`: flag activated after payout has been claimed. Precludes the reclaim of the same payout
+  * `chosen_opt`: stores the forecast bet by the participant.
+  * `has_placed_bet`: flag that activates when after the bet is placed. Precludes the possibility of multiple bets.
+  * `has_requested_payout`: flag activated after payout has been claimed. Precludes the reclaim of the same payout.
 
 ### Methods
 
@@ -270,7 +274,7 @@ external clients.
 * _Exposed Transactions_:
   * `create` (Smart Contract creation): may be used by the _Manager_ only, to issue the creation of a new Smart Contract
     related to a particular event (disposable Smart Contract fashion). At creation time, M sets the oracle address, the
-    end of the match timestamp (which precludes the deletion of the contract before the event termination) and the time
+    timestamps of start and end of the match and the time
     window granted to winning participants after the event for claiming their winnings.
   * `opt_in` (Smart Contract opt-in): may be used by each participant, to opt-in the Smart Contract.
   * `bet`: may be used by any participant _Px_ to place a bet on the smart contract event. In placing the bet, the
@@ -287,10 +291,18 @@ external clients.
 * _Internal Methods_:
   * `set_manager`: sets the manager address upon creation
   * `set_oracle`: sets the oracle address upon creation
+  * `set_event_start_time`: sets the event start time
   * `set_event_end_time`: sets the event end time
   * `set_payout_time`: sets the time frame within which payouts can be requested.
 
 ## How to deploy and run
+
+First, clone the repository. If you are going to use your own sandbox deployment, you can avoid recursing submodules. On
+the other hand, if you want to use the sandbox that we included as a submodule, clone using:
+
+``` shell
+git clone --recurse-submodules https://github.com/n-elia/algobet.git
+```
 
 ### Environment setup
 
@@ -321,7 +333,7 @@ The `demo()` method inside `src/contract.py` will be executed.
 ### Run the demo using the testnet
 
 The tests can be run deploying the `sandbox` and attaching it to the `testnet`: `./sandbox up testnet`.
-From your `sandbox` folder, create a wallet and populate it with two accounts:
+From `test/sandbox` folder, create a wallet and populate it with two accounts:
 
 ```shell
 ./sandbox enter algod
@@ -353,8 +365,9 @@ To run tests, the sandbox in `dev`mode must be up and running.
 Therefore, we provided the test suite with the possibility to set up and teardown the sandbox network during each test
 session.
 
-Depending on your configuration, set up the `src/test/sandbox/sandbox_setup.sh`
-and `src/test/sandbox/sandbox_teardown.sh` shell scripts to point to your `sandbox` folder.
+If you want to use the sandbox included into the repository, just skip to next step. Otherwise, depending on your
+configuration, set up the `src/test/sandbox-scripts/sandbox_setup.sh`
+and `src/test/sandbox-scripts/sandbox_teardown.sh` shell scripts to point to your `sandbox` folder.
 Then, you can enable automatic execution of those scripts at each run by using the `--sandbox` parameter on the `pytest`
 CLI.
 
@@ -394,11 +407,13 @@ python compile.py
 - Develop a mechanism to make the contract account hold enough Algos to pay transaction fees in variable transaction
   fees scenarios.
 
-## Live showcase - *Bets are open on testnet!*
+## Live showcase
 
 To showcase our DApp, we set up an AlgoBet contract, created on `testnet` on Mon, 17 October 2022 20:00:25 (TX ID:
 `MQDBOYVMJETEL5KTVUYUAMLKRAXF2GE2KNEUOQIQQ773OV555RQQ`).\
-You can browse the AlgoBet contract account [here](https://app.dappflow.org/explorer/account/R73SCK5BKU3TEP3ZBHV3LFWG56HPWGLDTOFATAR75BHIXS256Y7OTHJ4EI/transactions) on Dappflow.
+You can browse the AlgoBet contract
+account [here](https://app.dappflow.org/explorer/account/R73SCK5BKU3TEP3ZBHV3LFWG56HPWGLDTOFATAR75BHIXS256Y7OTHJ4EI/transactions)
+on Dappflow.
 
 ![Dappflow screenshot](docs/img/showcase_dappflow.png)
 
@@ -406,3 +421,6 @@ The event end has been set on: Tuesday 18 October 2022 17:00:00 (GMT).
 
 Feel free to test it, placing your bets. You will have 24h since the end of the event to request your payout.
 **Good luck!**
+
+Update: the event ended, so the result has been set by the oracle and the winner participants have been allowed for
+payout!

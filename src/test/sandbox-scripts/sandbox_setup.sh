@@ -1,9 +1,9 @@
 #!/bin/sh
-cd /home/ubi/Documents/algorand-learning/sandbox/sandbox || exit
+cd src/test/sandbox || exit
 ./sandbox up dev
 
 # Create additional_accounts, funding them from the main one
-additional_accounts=4
+additional_accounts=5
 source_addr=$(./sandbox goal account list | awk 'NR==1{print $3}')
 echo "Attempting to create $additional_accounts more accounts, funding them from $source_addr ..."
 
