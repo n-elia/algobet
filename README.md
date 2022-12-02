@@ -1,3 +1,5 @@
+![Background picture](docs/img/bg.svg)
+
 # AlgoBet - A decentralized bet system powered by Algorand
 
 _Authors: Group 5 - Nicola Elia, Alessandro Parenti, Domenico Tortola_
