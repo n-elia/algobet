@@ -998,3 +998,17 @@ Deleted AlgoBet dApp with id: 145117913 in tx: LHFJ2KROWM5XAHPYYRVGQ2CGPZA5J6HW6
 ```
 
 > Note that the _Manager_ account which requests the dApp deletion will receive, with a payment transaction, all the content of dApp account at the moment of its deletion.
+
+
+# Summary
+
+Congrats, you reached the end of the tutorial!
+
+So far, you learned:
+
+* how to setup an Algorand environment for developing Smart Contracts using Beaker framework and for deploying them leveraging the sandbox;
+* how to generate TEAL code from a Beaker Smart Contract;
+* how to deploy a Beaker dApp on Algorand testnet;
+* how to setup a decentralized bet system running on Algorand network, using AlgoBet Smart Contract.
+
+Have fun with Beaker!
