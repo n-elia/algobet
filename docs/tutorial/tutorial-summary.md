@@ -1,0 +1,1 @@
+In this tutorial you will deploy a bet dApp, named AlgoBet. You will setup an Algorand sandbox, compile the AlgoBet smart contract and instantiate it on the testnet. Finally, you will be able to interact with the deployed decentralized bet system.
