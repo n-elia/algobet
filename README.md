@@ -2,13 +2,13 @@
 
 # AlgoBet - A decentralized bet system powered by Algorand
 
-_Authors: Group 5 - Nicola Elia, Alessandro Parenti, Domenico Tortola_
+_Authors: Nicola Elia, Alessandro Parenti, Domenico Tortola_
+
+_Current state_: the project won the 3rd prize. A tutorial about deploying this smart contract has been published by the authors [here](https://developer.algorand.org/tutorials/titolo-2/) (Algorand Developer Portal). Some other features have been implemented on top of this smart contract in [this](https://github.com/n-elia/algorand-beaker-example) repository.
 
 This repository contains the deliverables related to the project work developed by Group #5 during
 the [International School on Algorand Smart Contracts](https://algorand-school.github.io/algorand-school/) held online
 on September 27 - October 18, 2022.
-
-Current state: the proposal has been approved by the School's organising committee. The project has been developed.
 
 ## Table of contents
 
@@ -422,5 +422,5 @@ The event end has been set on: Tuesday 18 October 2022 17:00:00 (GMT).
 Feel free to test it, placing your bets. You will have 24h since the end of the event to request your payout.
 **Good luck!**
 
-Update: the event ended, so the result has been set by the oracle and the winner participants have been allowed for
+Update: the **event ended**, so the result has been set by the oracle and the winner participants have been allowed for
 payout!
